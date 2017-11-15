@@ -1,0 +1,49 @@
+---
+- name: Fetch Private Key
+  local_action:
+    module: copy
+    content: "{{ git_private_key.password }}"
+    dest: "{{ git_private_key_file }}"
+    mode: 0700
+
+- name: Remove Existing Git Project Directory
+  local_action:
+    module: file
+    dest: "{{ archive_project_base_directory }}"
+    state: absent
+
+- name: Perform Git Clone
+  local_action:
+    module: git
+    repo: "{{ archive_git_url }}"
+    dest: "{{ archive_project_base_directory }}"
+    version: "{{ archive_git_branch }}"
+    key_file: "{{ git_private_key_file }}"
+    accept_hostkey: yes
+    force: yes
+
+- name: Remove Private Key
+  local_action:
+    module: file
+    path: "{{ git_private_key_file }}"
+    state: absent
+
+- name: Remove Everything From Git
+  delegate_to: localhost
+  command: "git rm -rf --ignore-unmatch {{ item }}"
+  args:
+    chdir: "{{ archive_project_base_directory }}"
+  when:
+    force_git_removal == True
+  with_items:
+    - "{{ archive_project_base_directory }}/configs"
+    - "{{ archive_project_base_directory }}/extras"
+    
+- name: Delete Existing Directories In Project
+  local_action:
+    module: file
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ archive_project_base_directory }}/configs"
+    - "{{ archive_project_base_directory }}/extras"

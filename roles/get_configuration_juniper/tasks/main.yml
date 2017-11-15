@@ -1,0 +1,14 @@
+---
+- name: Get Configuration
+  junos_facts:
+    config_format: text
+    gather_subset: config
+    provider: "{{ cli }}"
+
+- name: Run Extra Commands
+  junos_command:
+    provider: "{{ cli }}"
+    commands:
+      - show version
+      - show chassis hardware
+  register: extra_commands_output

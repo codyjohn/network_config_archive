@@ -1,0 +1,13 @@
+---
+- name: Get Configuration
+  nxos_facts:
+    gather_subset: config
+    provider: "{{ cli }}"
+
+- name: Run Extra Commands
+  nxos_command:
+    provider: "{{ cli }}"
+    commands:
+      - show version
+      - show inventory
+  register: extra_commands_output

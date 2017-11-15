@@ -1,0 +1,31 @@
+---
+- name: Copy Config Variable (For Scrubbing)
+  set_fact: 
+    ansible_net_config_scrubbed: "{{ ansible_net_config }}"
+
+- name: Scrub Output
+  set_fact: 
+    ansible_net_config_scrubbed: "{{ ansible_net_config_scrubbed | regex_replace(item.pattern, item.replace) }}"
+  with_items: "{{ scrub_patterns }}"
+  no_log: True
+
+- name: Save Configuration
+  local_action:
+    module: copy 
+    content: "{{ ansible_net_config_scrubbed }}"
+    dest: "{{ config_directory }}/{{ inventory_hostname }}"
+
+- name: Save Extras
+  local_action:
+    module: copy 
+    content: "{{ extra_commands_output.stdout | join('\n\n#################\n\n') }}"
+    dest: "{{ extras_directory }}/{{ inventory_hostname }}"
+  when: extra_commands_output is defined
+
+# don't know if this is needed, but we don't need the config anymore 
+# so no reason to keep them in memory
+- name: Flushing Variables
+  set_fact:
+    ansible_net_config: ''
+    ansible_net_config_scrubbed: ''
+    extra_commands_output: ''

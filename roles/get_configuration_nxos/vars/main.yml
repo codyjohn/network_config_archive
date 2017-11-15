@@ -1,0 +1,8 @@
+---
+scrub_patterns: 
+  - pattern: ' (((secret)|(password)|(key)) [57]) [^\s]+\b'
+    replace: ' \1 <SCRUBBED>'
+  - pattern: '(snmp-server host .*) [^\s]+\b'
+    replace: '\1 <SCRUBBED>'
+  - pattern: '\n!Time: (.*)\n'
+    replace: '\n!Time: <SCRUBBED>\n'

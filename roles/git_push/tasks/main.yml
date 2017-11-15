@@ -1,0 +1,55 @@
+---
+- name: Fetch Private Key
+  local_action:
+    module: copy
+    content: "{{ git_private_key }}"
+    dest: "{{ git_private_key_file }}"
+    mode: 0700
+
+- name: Set Git Email Address
+  delegate_to: localhost
+  shell: "git config user.email \"{{ git_email_address }}\""
+  args:
+    chdir: "{{ archive_project_base_directory }}"
+
+- name: Set Git User
+  delegate_to: localhost
+  shell: "git config user.name \"Ansible\""
+  args:
+    chdir: "{{ archive_project_base_directory }}"
+
+- name: Add All To Git
+  delegate_to: localhost
+  command: "git add {{ item }}"
+  args:
+    chdir: "{{ archive_project_base_directory }}"
+  with_items:
+    - "{{ archive_project_base_directory }}/configs"
+    - "{{ archive_project_base_directory }}/extras"
+
+- name: Get Git Status
+  delegate_to: localhost
+  shell: git status
+  args:
+    chdir: "{{ archive_project_base_directory }}"
+  register: git_status
+
+- name: Perform Git Commit
+  delegate_to: localhost
+  command: "git commit -m \"Comitted by ansible\""
+  args:
+    chdir: "{{ archive_project_base_directory }}"
+  when: git_status.stdout | search("# Changes to be committed:")
+
+- name: Perform Git Push
+  delegate_to: localhost
+  shell: "ssh-agent bash -c 'ssh-add {{ git_private_key_file }}; git push origin {{ archive_git_branch }} --repo {{ archive_git_url }}'"
+  args:
+    chdir: "{{ archive_project_base_directory }}"
+  when: git_status.stdout | search("# Changes to be committed:")
+
+- name: Remove Private Key
+  local_action:
+    module: file
+    path: "{{ git_private_key_file }}"
+    state: absent

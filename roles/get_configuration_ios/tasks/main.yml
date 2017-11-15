@@ -1,0 +1,5 @@
+---
+- name: Get Configuration
+  ios_facts:
+    gather_subset: config
+    provider: "{{ cli }}"

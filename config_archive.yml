@@ -1,0 +1,56 @@
+---
+- name: Set Variables
+  hosts: all
+  gather_facts: no
+
+  roles:
+    - { role: set_variables, tags: [always] }
+
+- name: Pull Configs From Git
+  hosts: all
+  gather_facts: no
+  run_once: True
+
+  roles:
+    - { role: git_pull, tags: [always] }
+
+- name: Backup Juniper Devices
+  hosts: juniper
+  gather_facts: no
+  connection: local
+  serial: 30
+
+  roles:
+    - { role: create_directories, tags: [juniper] }
+    - { role: get_configuration_juniper, tags: [juniper] }
+    - { role: save_configuration, tags: [juniper] }
+
+- name: Backup Cisco Nexus Devices
+  hosts: nxos
+  gather_facts: no
+  connection: local
+  serial: 30
+
+  roles:
+    - { role: create_directories, tags: [nxos, cisco] }
+    - { role: get_configuration_nxos, tags: [nxos, cisco] }
+    - { role: save_configuration, tags: [nxos, cisco] }
+
+- name: Backup Cisco IOS Devices
+  hosts: ios
+  gather_facts: no
+  connection: local
+  serial: 30
+
+  roles:
+    - { role: create_directories, tags: [ios, cisco] }
+    - { role: get_configuration_ios, tags: [ios, cisco] }
+    - { role: save_configuration, tags: [ios, cisco] }
+
+- name: Commit Changes to Git
+  hosts: juniper:nxos:ios
+  run_once: true
+  gather_facts: no
+
+  roles:
+    - { role: git_push, tags: [always] }

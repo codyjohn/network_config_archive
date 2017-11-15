@@ -1,0 +1,3 @@
+- name: Set Variable Values
+  include_vars:
+    file: "main.yml"

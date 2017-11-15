@@ -1,0 +1,9 @@
+---
+- name: Ensure Output Directories Exist
+  file:
+    state: directory
+    dest: "{{ item }}"
+    mode: 0755
+  with_items:
+    - "{{ config_directory }}"
+    - "{{ extras_directory }}"

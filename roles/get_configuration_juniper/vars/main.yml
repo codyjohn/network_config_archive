@@ -1,0 +1,4 @@
+---
+scrub_patterns: 
+  - pattern: ' ((secret)|((authentication-)?key)|(encrypted-password)) ".*"'
+    replace: ' \1 <SCRUBBED>'

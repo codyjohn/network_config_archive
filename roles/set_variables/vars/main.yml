@@ -1,0 +1,12 @@
+---
+archive_git_project: config-archive # name of the git project for storing archived configs
+archive_git_url: "" # The URL of the git project 
+archive_git_branch: master
+git_email_address: "" # an email address to add to git config
+git_private_key: ""  # use a lookup plugin or vault for the key
+git_private_key_file: "/tmp/.{{ archive_git_project }}" # where to output the private key
+archive_project_base_directory: "/tmp/{{ archive_git_project }}" # where to clone the project to
+datacenter_name: "{{ inventory_hostname.split('.')[1] }}"
+config_directory: "{{ archive_project_base_directory }}/configs/{{ datacenter_name }}" # directory for configs
+extras_directory: "{{ archive_project_base_directory }}/extras/{{ datacenter_name }}" # directory for extra commands output
+force_git_removal: False # if True, force removal of any configs in the archive that are not in the inventory
